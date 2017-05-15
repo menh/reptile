@@ -4,14 +4,16 @@ import re
 import csv
 import requests
 import sys
-reload (sys)
+import urllib2
+import urllib
 class DDWspider(object):
     def __init__(self):
         print 'start...'
     #get source pagecode
     def getSource(self,url):
-        html=requests.get(url)
-        return html.text
+        request=urllib2.Request(url)
+        response=urllib2.urlopen(request)
+        return response.read().decode('gbk')
     #change URL
     def changePage(self,url,totalPage):
         page_group=[]
@@ -21,7 +23,7 @@ class DDWspider(object):
         return page_group
     #get every book info
     def getEveryBook(self,source):
-        everyOne = re.findall('(class="inner".*?</li>)', source, re.S)[1:]
+        everyOne = re.findall('(class="bigimg".*?</li>)', source, re.S)[1:]
         return everyOne
     #get book info
     def getInfo(self,eachBook):
@@ -48,12 +50,13 @@ if __name__ == '__main__':
     bookInfo=[]  
     url = 'http://category.dangdang.com/pg1-cp01.36.11.00.00.00-shlist.html'  
     dangdangSpider=DDWspider()  
-    allLinks = dangdangSpider.changePage(url, 5)  
+    allLinks = dangdangSpider.changePage(url, 1)  
     for link in allLinks:  
         print u'processing...' + link  
-        html = dangdangSpider.getSource(link)  
+        html = dangdangSpider.getSource(link)	
         everyBook = dangdangSpider.getEveryBook(html)  
         for each in everyBook:  
+            print each
             info = dangdangSpider.getInfo(each)  
             bookInfo.append(info)  
         print bookInfo  
